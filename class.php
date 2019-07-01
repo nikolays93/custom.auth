@@ -1,17 +1,17 @@
 <?if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)die();
 
-use \Bitrix\Main;
 use \Bitrix\Main\Localization\Loc;
 use \Bitrix\Main\Loader;
 
-if( !defined('PATH_TO_PROFILE') ) define('PATH_TO_PROFILE', '/user/');
-if( !defined('PATH_TO_AUTH') ) define('PATH_TO_AUTH', '/auth/');
-if( !defined('PATH_TO_REGISTER') ) define('PATH_TO_REGISTER', '/auth/?register=yes');
+if( !defined('PATH_TO_REGISTER') )        define('PATH_TO_REGISTER', '/auth/?register=yes');
 if( !defined('PATH_TO_FORGOT_PASSWORD') ) define('PATH_TO_FORGOT_PASSWORD', '/auth/?forgot_password=yes');
 
 class customAuthComponent extends CBitrixComponent
 {
     static $bConfirmReq = false;
+
+    /** @const array (do not const for php version compatibility) */
+    protected $needModules = array();
 
     /** @var array */
     private $errors = array();
@@ -25,10 +25,19 @@ class customAuthComponent extends CBitrixComponent
 
     private $template = '';
 
+    function includeRequiredModules()
+    {
+        foreach ($this->needModules as $module) {
+            if( !Loader::includeModule( $module ) ) {
+                $this->errors[] = "No {$module} module.";
+            }
+        }
+    }
+
     function __construct($component = null)
     {
         parent::__construct($component);
-        // Loader::includeModule( 'moduleName' );
+        $this->includeRequiredModules();
     }
 
     function onPrepareComponentParams($arParams)
@@ -53,7 +62,27 @@ class customAuthComponent extends CBitrixComponent
          * @var $arParams['IS_AJAX'] boolean
          * If is IS_AJAX param exists, check the true defined
          */
-        $arParams['IS_AJAX'] = (isset($arParams['IS_AJAX']) && "Y" == $arParams['IS_AJAX']);
+        if ( isset($arParams['IS_AJAX']) && in_array($arParams['IS_AJAX'], array('Y', 'N')) ) {
+            $arParams['IS_AJAX'] = $arParams['IS_AJAX'] == 'Y';
+        }
+
+        /**
+         * Server ajax defined
+         */
+        // elseif ( !empty($_SERVER['HTTP_X_REQUESTED_WITH']) && 'xmlhttprequest' === strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) ) {
+        //     $arParams['IS_AJAX'] = true;
+        // }
+
+        /**
+         * Same as param with request
+         */
+        elseif( isset($this->request['is_ajax']) && in_array($this->request['is_ajax'], array('Y', 'N')) ) {
+            $arParams['IS_AJAX'] = $this->request['is_ajax'] == 'Y';
+        }
+
+        else {
+            $arParams['IS_AJAX'] = false;
+        }
 
         return $arParams;
     }
@@ -128,12 +157,13 @@ class customAuthComponent extends CBitrixComponent
         define("NO_KEEP_STATISTIC", true);
         define("NOT_CHECK_PERMISSIONS", true);
 
-        global $USER, $DB;
+        global $USER;
+        global $DB;
 
         /** @todo var */
         // $requiredFields = array();
 
-        /** @todo var bool */
+        /** @var bool */
         $useCaptha = false;
 
         /** @var bool if is the user must be confirm registration at email (from main module settings) */
@@ -162,6 +192,8 @@ class customAuthComponent extends CBitrixComponent
 
         list($arFields['NAME']) = explode('@', $arFields['EMAIL']);
         $arFields['LOGIN'] = $arFields['EMAIL'];
+
+        $this->arParams['IS_AJAX'] = true;
 
         /**
          * @todo check captcha
@@ -221,17 +253,8 @@ class customAuthComponent extends CBitrixComponent
     {
         global $APPLICATION, $USER;
 
-        $request = Main\Application::getInstance()->getContext()->getRequest();
-        $request->addFilter(new Main\Web\PostDecodeFilter);
-
-        // $action = $request->get("action");
-
-        // remove it
-        if( ($register = $request->get("REGISTER")) && !empty($register) ) {
-            $this->arParams['ACTION'] = 'doRegister';
-        }
-
-        if( !empty($this->arParams['ACTION']) ) {
+        if( !empty($this->arParams['ACTION']) && ($this->arParams['IS_AJAX']
+            || !empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') ) {
             if ( is_callable(array($this, $this->arParams['ACTION'] . "Action")) ) {
                 try {
                     call_user_func( array($this, $this->arParams['ACTION'] . "Action") );
@@ -245,13 +268,13 @@ class customAuthComponent extends CBitrixComponent
          * Set browser title
          */
         if( "N" !== $this->arParam['SET_TITLE'] ) {
-            if("yes" == $request->get('forgot_password')) {
+            if    (!empty( $_REQUEST['forgot_password'] ) && "yes" == $_REQUEST['forgot_password']) {
                 $APPLICATION->SetTitle("Запрос пароля на восстановление");
             }
-            elseif("yes" == $request->get('change_password')) {
+            elseif(!empty( $_REQUEST['change_password'] ) && "yes" == $_REQUEST['change_password']) {
                 $APPLICATION->SetTitle("Востановление пароля");
             }
-            elseif("yes" == $request->get('register')) {
+            elseif(!empty( $_REQUEST['register'] ) && "yes" == $_REQUEST['register']) {
                 $APPLICATION->SetTitle("Регистрация");
             }
             else {
@@ -259,86 +282,64 @@ class customAuthComponent extends CBitrixComponent
             }
         }
 
-        if( $this->arParams['IS_AJAX'] ) {
-            $json = false;
+        if ($this->arParams['IS_AJAX']) {
+            $APPLICATION->RestartBuffer();
 
-            // is auth action
-            if( "Y" == $request->get("AUTH_FORM") ) {
-                if( !empty( $this->errors ) ) {
-                    $this->arResponse['STATUS']   = 'ERROR';
-                    $this->arResponse['MESSAGES'] = $this->errors;
-                }
+            if( !empty( $this->errors ) ) {
+                $this->arResponse['STATUS']   = 'ERROR';
+                $this->arResponse['MESSAGES'] = $this->errors;
+            }
 
-                ob_start();
+            header('Content-Type: application/json');
+            echo \Bitrix\Main\Web\Json::encode($this->arResponse);
+            $APPLICATION->FinalActions();
+            die();
+        }
+        else {
+            if( !empty( $this->errors ) ) {
+                $this->arResult['STATUS']   = 'ERROR';
+                $this->arResult['MESSAGES'] = $this->errors;
+            }
 
-                $APPLICATION->IncludeComponent(
-                    "bitrix:system.auth.form",
-                    "errors",
-                    array(
-                        "SHOW_ERRORS" => "Y"
-                    ),
-                    $this,
-                    array("HIDE_ICONS" => "Y")
-                );
+            if("yes" == $_REQUEST['logout']) {
+                $USER->Logout();
 
-                $ob = ob_get_clean();
-                $errors = trim( $ob );
+                // if (isset($_REQUEST["backurl"]) && strlen($_REQUEST["backurl"]) > 0)
+                //     LocalRedirect($backurl);
+            }
 
-                if( $errors ) {
-                    $this->arResponse['STATUS'] = 'ERROR';
-                    $this->arResponse['HTML']   = $errors;
+            if( $USER->isAuthorized() ) {
+                // header('HTTP/1.1 301 Moved Permanently');
+                // header('Location: //'.$_SERVER['SERVER_NAME'] . PATH_TO_PROFILE);
+
+                echo '<p>Вы зарегистрированы и успешно авторизовались. ';
+                echo 'Через некоторое время вы буете перенаправленны на стрианцу профиля</p>';
+                echo '<p>';
+                echo '  <a href="/">Вернуться на главную страницу</a> ';
+                echo '| <a href="'.PATH_TO_PROFILE.'">Просмотреть свой профиль</a> ';
+                echo '| <a href="'.PATH_TO_AUTH.'?logout=yes">Выйти</a>';
+                echo '</p>';
+
+                if( $USER->IsAdmin() ) {
+                    echo '<p><em>Вы авторизированы, поэтому должны быть перенаправленны на страницу '.PATH_TO_PROFILE.', но для удобной настройки страницы администраторы остаются.</em></p>';
                 }
                 else {
-                    ob_start();
-
-                    /**
-                     * You are authorized!
-                     */
-                    $this->arResult['REDIRECT_URL'] = '/auth/';
-                    $this->includeComponentTemplate();
-
-                    $this->arResponse['STATUS'] = 'OK';
-                    $this->arResponse['HTML']   = ob_get_clean();
-                }
-
-                $json = true;
-            }
-
-            // is register action
-            elseif( ($register = $request->get("REGISTER")) && !empty($register) ) {
-                $json = true;
-            }
-
-            if( $json ) {
-                $APPLICATION->RestartBuffer();
-
-                header('Content-Type: application/json');
-                echo \Bitrix\Main\Web\Json::encode($this->arResponse);
-                $APPLICATION->FinalActions(); // need?
-                die();
-            }
-        }
-
-        if( !empty( $this->errors ) ) {
-            $this->arResult['STATUS']   = 'ERROR';
-            $this->arResult['MESSAGES'] = $this->errors;
-        }
-
-        if("yes" == $_REQUEST['logout']) {
-            $USER->Logout();
-        }
-
-        if( ! $this->template ) {
-            $templates = array('forgot_password', 'change_password', 'register');
-            foreach ($templates as $template) {
-                if( !empty($_GET[ $template ]) && 'yes' === $_REQUEST[ $template ] ) {
-                    $this->template = $template;
+                    echo '<script>setTimeout(function() { window.location.href = "'.PATH_TO_PROFILE.'"; }, 4000);</script>';
                 }
             }
-        }
 
-        // $this->setTemplateName();
-        $this->includeComponentTemplate( $this->template );
-        if( 'getForm' == $this->arParams['ACTION'] ) die();
+            if( ! $this->template ) {
+                $templates = array('forgot_password', 'change_password', 'register');
+                foreach ($templates as $template) {
+                    if( !empty($_GET[ $template ]) && 'yes' === $_REQUEST[ $template ] ) {
+                        $this->template = $template;
+                    }
+                }
+            }
+
+            // $this->setTemplateName();
+            $this->includeComponentTemplate( $this->template );
+            if( 'getForm' == $this->arParams['ACTION'] ) die();
+        }
     }
 }

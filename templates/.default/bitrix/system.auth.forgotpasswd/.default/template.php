@@ -24,19 +24,15 @@ ShowMessage($arParams["~AUTH_RESULT"]);
 				$component->__parent
 			);?>
 		<?else:?>
-		<p class="mb-1">
-			Введите электронный адрес указанный при регистрации.
+		<p>
+			Введите Email указанный при регистрации.
 			<?//=GetMessage("AUTH_FORGOT_PASSWORD_1")?>
 		</p>
 		<?endif;?>
 
-		<div class="form-inline">
-			<label class="col-form-label mr-2">
-				<input class="form-control" type="text" name="USER_EMAIL" maxlength="255" placeholder="Email" autocomplete="email" />
-			</label>
-
-			<input class="btn btn-primary" type="submit" name="send_account_info" value="Получить код восстановления" />
-		</div>
+		<label>
+			<input class="form-control" type="text" name="USER_EMAIL" maxlength="255"  placeholder="e-mail" autocomplete="email" />
+		</label>
 
 		<?if($arResult["USE_CAPTCHA"]):?>
 		<input type="hidden" name="captcha_sid" value="<?=$arResult["CAPTCHA_CODE"]?>" />
@@ -44,6 +40,8 @@ ShowMessage($arParams["~AUTH_RESULT"]);
 		<?echo GetMessage("system_auth_captcha")?>
 		<input type="text" name="captcha_word" maxlength="50" value="" />
 		<?endif?>
+
+		<input class="btn btn-primary" type="submit" name="send_account_info" value="Получить код восстановления" />
 	</form>
 </div>
 <!-- <script type="text/javascript">

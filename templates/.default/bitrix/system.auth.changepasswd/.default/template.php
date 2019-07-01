@@ -20,7 +20,7 @@
 				$component->__parent
 			);?>
 			<label>
-				<input class="form-control" type="text" name="USER_LOGIN" value="<?=$arResult["LAST_LOGIN"]?>" maxlength="50" placeholder="Login" /> <!-- placeholder="e-mail" autocomplete="email" -->
+				<input class="form-control" type="text" name="USER_LOGIN" value="<?=$arResult["LAST_LOGIN"]?>" maxlength="50" /> <!-- placeholder="e-mail" autocomplete="email" -->
 			</label>
 
 			<label>

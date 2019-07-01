@@ -26,7 +26,7 @@ $rand = randString(6);
 	<?else:?>
     <form id="register-form<?=$rand?>" class="form-register" method="post" action="<?=POST_FORM_ACTION_URI?>" name="regform" enctype="multipart/form-data">
     	<?if($arResult["BACKURL"] <> '') echo '<input type="hidden" name="backurl" value="' .$arResult["BACKURL"]. '" />';?>
-        <div class="error-messages text-danger" data-entity="error-messages">
+        <div class="error-messages" data-entity="error-messages">
     	<?php
     	if (count($arResult["ERRORS"]) > 0) {
     		foreach ($arResult["ERRORS"] as $key => $error) {
@@ -115,26 +115,15 @@ $rand = randString(6);
     <a class="login" href="/user/?login=yes" data-fancybox="" data-type="ajax" data-src="/auth/?action=getForm" rel="nofollow">Уже зарегистрированы? Войти</a>
     <?endif?>
 </div>
-
 <script>
-    <?if(!empty($arParams['IS_AJAX']) && 'Y' == $arParams['IS_AJAX']):
-    $arParamsToDelete = array(
-        "login",
-        "login_form",
-        "logout",
-        "register",
-        "forgot_password",
-        "change_password",
-        "confirm_registration",
-        "confirm_code",
-        "confirm_user_id",
-        "logout_butt",
-        "auth_service_id",
-        "fancybox"
-    );?>
     var registerFormTarget = '#register-form<?=$rand?>',
         registerFormErrorsTarget = registerFormTarget + ' [data-entity="error-messages"]',
-        registerRefferLink = '<?echo $APPLICATION->GetCurPageParam("", array($arParamsToDelete));?>';
+        registerRefferLink = '<?echo $APPLICATION->GetCurPageParam("", array(
+            "login",
+            "logout",
+            "register",
+            "forgot_password",
+            "change_password"));?>';
 
     jQuery(document).ready(function($) {
         var $form = $(registerFormTarget),
@@ -143,20 +132,20 @@ $rand = randString(6);
         $form.on('submit', function () {
             $errors.hide();
 
-            $.post('/local/components/nikolays93/custom.auth/ajax.php?register=yes', $form.serialize(), function (response) {
+            $.post('/auth/?action=doRegister', $form.serialize() + '&ajax_action=register' , function (response) {
 
                 if (response && response.STATUS)
                 {
                     if ('OK' == response.STATUS) {
                         $form.addClass('success').html( response.MESSAGES );
-                        // window.location.href = window.location.origin + registerRefferLink;
+                    // window.location.href = window.location.origin + registerRefferLink;
                 }
                 else {
                     $errors
-                        .html(response.MESSAGES.map(function(elem, index) {
-                            return elem + '<br>';
-                        }))
-                        .fadeIn(100);
+                    .html(response.MESSAGES.map(function(elem, index) {
+                        return elem + '<br>';
+                    }))
+                    .show();
                 }
             }
 
@@ -164,7 +153,6 @@ $rand = randString(6);
 
             return false;
         });
-        <?endif?>
 
         $('[name="privacy_accept"]').on('change', function () {
             var $submit = $(this).closest('form').find('[type="submit"]');
@@ -185,7 +173,6 @@ $rand = randString(6);
         });
     });
 </script>
-
 
 	<?/*foreach ($arResult["SHOW_FIELDS"] as $FIELD):?>
 		<?if($FIELD == "AUTO_TIME_ZONE" && $arResult["TIME_ZONE_ENABLED"] == true):?>

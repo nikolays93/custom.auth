@@ -4,12 +4,11 @@ CJSCore::Init();
 
 global $APPLICATION;
 
-$formClass = (!empty($arParams['IS_AJAX']) && 'Y' == $arParams['IS_AJAX']) ? 'col-sm-10 offset-sm-1' : 'col-sm-4 offset-sm-4';
-
+// $arResult["NEW_USER_REGISTRATION"] = "Y";
 ?>
 <div class="auth-form row mt-5">
-    <form name="system_auth_form<?=$arResult["RND"]?>" class="<?= $formClass ?>" method="post" target="_top" action="<?=$arResult["AUTH_URL"]?>">
-        <div class="auth-form__errors text-danger mb-2" data-entity="error-messages">
+    <form name="system_auth_form<?=$arResult["RND"]?>" class="col-sm-4 offset-sm-4" method="post" target="_top" action="<?=$arResult["AUTH_URL"]?>">
+        <div class="auth-form__errors" data-entity="error-messages">
     	<?if ($arResult['SHOW_ERRORS'] == 'Y' && $arResult['ERROR']) {
     		ShowMessage($arResult['ERROR_MESSAGE']);
         }?>
@@ -46,17 +45,14 @@ $formClass = (!empty($arParams['IS_AJAX']) && 'Y' == $arParams['IS_AJAX']) ? 'co
 	            </script>
             <?endif?>
         </label>
-
-        <div class="container-fluid">
-            <div class="auth-form__helpers row justify-content-between">
-            	<?if ($arResult["STORE_PASSWORD"] == "Y"):?>
-            	<label title="<?=GetMessage("AUTH_REMEMBER_ME")?>" class="form-check">
-            		<input class="remember form-check-input" type="checkbox" name="USER_REMEMBER" value="Y" id="USER_REMEMBER_frm" />
-            		<span class="form-check-label">запомнить меня</span>
-            	</label>
-            	<?endif?>
-            	<noindex><a class="forgot ar" href="<?=$arResult["AUTH_FORGOT_PASSWORD_URL"]?>" rel="nofollow">Забыли пароль?</a></noindex>
-            </div>
+        <div class="auth-form__helpers">
+        	<?if ($arResult["STORE_PASSWORD"] == "Y"):?>
+        	<label title="<?=GetMessage("AUTH_REMEMBER_ME")?>">
+        		<input class="remember" type="checkbox" name="USER_REMEMBER" value="Y" id="USER_REMEMBER_frm" />
+        		<span>запомнить меня</span>
+        	</label>
+        	<?endif?>
+        	<noindex><a class="forgot ar" href="<?=$arResult["AUTH_FORGOT_PASSWORD_URL"]?>" rel="nofollow">Забыли пароль?</a></noindex>
         </div>
 
         <?if ($arResult["CAPTCHA_CODE"]):?>
@@ -92,35 +88,25 @@ $formClass = (!empty($arParams['IS_AJAX']) && 'Y' == $arParams['IS_AJAX']) ? 'co
         <?endforeach?>
         <input type="hidden" name="AUTH_FORM" value="Y" />
         <input type="hidden" name="TYPE" value="AUTH" />
-
-        <?if($arResult["NEW_USER_REGISTRATION"] == "Y"):?>
-        <div class="col-sm-4 offset-sm-4 mt-2 text-center">
-            <noindex><a class="register" href="<?=$arResult["AUTH_REGISTER_URL"]?>" rel="nofollow">Регистрация</a></noindex>
-        </div>
-        <?endif?>
     </form>
+
+    <?if($arResult["NEW_USER_REGISTRATION"] == "Y"):?>
+    <div class="col-sm-4 offset-sm-4 text-center">
+        <noindex><a class="register" href="<?=$arResult["AUTH_REGISTER_URL"]?>" data-fancybox="" data-type="ajax" data-src="/auth/?register=yes&action=getForm" rel="nofollow">Регистрация</a></noindex>
+    </div>
+    <?endif?>
 </div>
-<?if(!empty($arParams['IS_AJAX']) && 'Y' == $arParams['IS_AJAX']):?>
 <script>
-    <?
-    $arParamsToDelete = array(
-        "login",
-        "login_form",
-        "logout",
-        "register",
-        "forgot_password",
-        "change_password",
-        "confirm_registration",
-        "confirm_code",
-        "confirm_user_id",
-        "logout_butt",
-        "auth_service_id",
-        "fancybox"
-    );
-    ?>
     var authFormTarget = '[name="system_auth_form<?=$arResult["RND"]?>"]',
         authFormErrorsTarget = authFormTarget + ' [data-entity="error-messages"]',
-        authRefferLink = '<?echo $APPLICATION->GetCurPageParam("", $arParamsToDelete);?>';
+        authRefferLink = '<?echo $APPLICATION->GetCurPageParam("", array(
+            "login",
+            "logout",
+            "register",
+            "forgot_password",
+            "change_password",
+            "action",
+            "fancybox"));?>';
 
     jQuery(document).ready(function($) {
         var $form = $(authFormTarget),
@@ -129,19 +115,17 @@ $formClass = (!empty($arParams['IS_AJAX']) && 'Y' == $arParams['IS_AJAX']) ? 'co
         $form.on('submit', function () {
             $errors.hide();
 
-            $.post('/local/components/nikolays93/custom.auth/ajax.php', $form.serialize(), function (response) {
+            $.post('/auth/', $form.serialize() + '&ajax_action=auth' , function (response) {
 
                 if (response && response.STATUS)
                 {
                     if ('OK' == response.STATUS) {
-                        $form.after( response.HTML );
-                        $form.remove();
+                        window.location.href = window.location.origin + authRefferLink;
                     }
                     else {
                         $errors
-                            .html(response.MESSAGES)
-                            .html(response.HTML)
-                            .fadeIn(100);
+                        .html(response.MESSAGES)
+                        .show();
                     }
                 }
 
@@ -151,7 +135,6 @@ $formClass = (!empty($arParams['IS_AJAX']) && 'Y' == $arParams['IS_AJAX']) ? 'co
         });
     });
 </script>
-<?endif;?>
 <?/*?>
 <div class="bx-system-auth-form">
 <?if($arResult["FORM_TYPE"] == "otp"):
