@@ -4,59 +4,67 @@ CJSCore::Init();
 
 global $APPLICATION;
 
-$formClass = (!empty($arParams['IS_AJAX']) && 'Y' == $arParams['IS_AJAX']) ? 'col-sm-10 offset-sm-1' : 'col-sm-4 offset-sm-4';
+$isAjax = false;
+if(!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && 'xmlhttprequest' === strtolower($_SERVER['HTTP_X_REQUESTED_WITH'])) {
+    $isAjax = true;
+}
+elseif(!empty($arParams['IS_AJAX']) && 'Y' == $arParams['IS_AJAX']) {
+    $isAjax = true;
+}
+
+echo "<pre>";
+var_dump( $arResult );
+echo "</pre>";
 
 ?>
 <div class="auth-form row mt-5">
-    <form name="system_auth_form<?=$arResult["RND"]?>" class="<?= $formClass ?>" method="post" target="_top" action="<?=$arResult["AUTH_URL"]?>">
+    <form name="system_auth_form<?=$arResult["RND"]?>" class="<?= $isAjax ? 'col-12' : 'col-sm-4 offset-sm-4' ?>" method="post" target="_top" action="<?=$arResult["AUTH_URL"]?>">
         <div class="auth-form__errors text-danger mb-2" data-entity="error-messages">
     	<?if ($arResult['SHOW_ERRORS'] == 'Y' && $arResult['ERROR']) {
     		ShowMessage($arResult['ERROR_MESSAGE']);
         }?>
         </div>
 
-        <label class="wide">
+        <div class="form-group">
             <input class="form-control" type="text" placeholder="Логин или эл. почта" autocomplete="username" name="USER_LOGIN" maxlength="50">
             <script>
-				BX.ready(function() {
-					var loginCookie = BX.getCookie("<?=CUtil::JSEscape($arResult["~LOGIN_COOKIE_NAME"])?>");
-					if (loginCookie)
-					{
-						var form = document.forms["system_auth_form<?=$arResult["RND"]?>"];
-						var loginInput = form.elements["USER_LOGIN"];
-						loginInput.value = loginCookie;
-					}
-				});
-			</script>
-        </label>
+    			BX.ready(function() {
+    				var loginCookie = BX.getCookie("<?=CUtil::JSEscape($arResult["~LOGIN_COOKIE_NAME"])?>");
+    				if (loginCookie)
+    				{
+    					var form = document.forms["system_auth_form<?=$arResult["RND"]?>"];
+    					var loginInput = form.elements["USER_LOGIN"];
+    					loginInput.value = loginCookie;
+    				}
+    			});
+    		</script>
+        </div>
 
-        <label class="wide">
+        <div class="form-group">
             <input class="form-control" type="password" placeholder="Введите пароль" autocomplete="current-password" name="USER_PASSWORD" maxlength="50"><!-- autocomplete="off" -->
             <?if($arResult["SECURE_AUTH"]):?>
-	            <span class="bx-auth-secure" id="bx_auth_secure<?=$arResult["RND"]?>" title="<?echo GetMessage("AUTH_SECURE_NOTE")?>" style="display:none">
-	            	<div class="bx-auth-secure-icon"></div>
-	            </span>
-	            <noscript>
-	            	<span class="bx-auth-secure" title="<?echo GetMessage("AUTH_NONSECURE_NOTE")?>">
-	            		<div class="bx-auth-secure-icon bx-auth-secure-unlock"></div>
-	            	</span>
-	            </noscript>
-	            <script type="text/javascript">
-	            	document.getElementById('bx_auth_secure<?=$arResult["RND"]?>').style.display = 'inline-block';
-	            </script>
+                <span class="bx-auth-secure" id="bx_auth_secure<?=$arResult["RND"]?>" title="<?echo GetMessage("AUTH_SECURE_NOTE")?>" style="display:none">
+                	<div class="bx-auth-secure-icon"></div>
+                </span>
+                <noscript>
+                	<span class="bx-auth-secure" title="<?echo GetMessage("AUTH_NONSECURE_NOTE")?>">
+                		<div class="bx-auth-secure-icon bx-auth-secure-unlock"></div>
+                	</span>
+                </noscript>
+                <script type="text/javascript">
+                	document.getElementById('bx_auth_secure<?=$arResult["RND"]?>').style.display = 'inline-block';
+                </script>
             <?endif?>
-        </label>
+        </div>
 
-        <div class="container-fluid">
-            <div class="auth-form__helpers row justify-content-between">
-            	<?if ($arResult["STORE_PASSWORD"] == "Y"):?>
-            	<label title="<?=GetMessage("AUTH_REMEMBER_ME")?>" class="form-check">
-            		<input class="remember form-check-input" type="checkbox" name="USER_REMEMBER" value="Y" id="USER_REMEMBER_frm" />
-            		<span class="form-check-label">запомнить меня</span>
-            	</label>
-            	<?endif?>
-            	<noindex><a class="forgot ar" href="<?=$arResult["AUTH_FORGOT_PASSWORD_URL"]?>" rel="nofollow">Забыли пароль?</a></noindex>
-            </div>
+        <div class="auth-form__helpers text-nowrap text-center mb-2">
+        	<?if ($arResult["STORE_PASSWORD"] == "Y"):?>
+        	<label title="<?=GetMessage("AUTH_REMEMBER_ME")?>" class="form-check">
+        		<input class="remember form-check-input" type="checkbox" name="USER_REMEMBER" value="Y" id="USER_REMEMBER_frm" />
+        		<span class="form-check-label">запомнить меня</span>
+        	</label>
+        	<?endif?>
+        	<noindex><a class="forgot" href="<?=$arResult["AUTH_FORGOT_PASSWORD_URL"]?>" rel="nofollow">Забыли пароль?</a></noindex>
         </div>
 
         <?if ($arResult["CAPTCHA_CODE"]):?>
@@ -94,8 +102,9 @@ $formClass = (!empty($arParams['IS_AJAX']) && 'Y' == $arParams['IS_AJAX']) ? 'co
         <input type="hidden" name="TYPE" value="AUTH" />
 
         <?if($arResult["NEW_USER_REGISTRATION"] == "Y"):?>
-        <div class="col-sm-4 offset-sm-4 mt-2 text-center">
-            <noindex><a class="register" href="<?=$arResult["AUTH_REGISTER_URL"]?>" rel="nofollow">Регистрация</a></noindex>
+        <div class="mt-3 text-center"><!-- col-sm-4 offset-sm-4  -->
+            <noindex><a href="/auth/?register=yes" data-fancybox data-type="ajax"
+        data-src="/local/components/nikolays93/custom.auth/ajax.php?register=yes" rel="nofollow">Регистрация</a></noindex>
         </div>
         <?endif?>
     </form>

@@ -331,7 +331,7 @@ class customAuthComponent extends CBitrixComponent
         if( ! $this->template ) {
             $templates = array('forgot_password', 'change_password', 'register');
             foreach ($templates as $template) {
-                if( !empty($_GET[ $template ]) && 'yes' === $_REQUEST[ $template ] ) {
+                if( 'yes' === $request->get( $template ) ) {
                     $this->template = $template;
                 }
             }

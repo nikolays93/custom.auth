@@ -19,8 +19,9 @@ if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)
 	die();
 
 $rand = randString(6);
+$columnClass = (!empty($arParams['IS_AJAX']) && 'Y' == $arParams['IS_AJAX']) ? 'col-sm-10 offset-sm-1' : 'col-sm-4 offset-sm-4';
 ?>
-<div class="register-form">
+<div class="register-form<?= $columnClass ?>">
 	<?if($USER->IsAuthorized()):?>
 	<p><?echo GetMessage("MAIN_REGISTER_AUTH")?></p>
 	<?else:?>
@@ -50,21 +51,24 @@ $rand = randString(6);
 	    			break;
 
 	    		case 'PERSONAL_PHONE':
-	    			?><label>
-	    				<input class="form-control" type="text" name="REGISTER[<?=$FIELD?>]" value="<?=$arResult["VALUES"][$FIELD]?>" placeholder="phone" autocomplete="tel" />
-	    			</label><?
+	    			?><div class="form-group">
+                        <label>Введите ваш номер телефона</label>
+	    				<input class="form-control" type="text" name="REGISTER[<?=$FIELD?>]" value="<?=$arResult["VALUES"][$FIELD]?>" placeholder="Номер телефона" autocomplete="tel" />
+                    </div><?
 	    			break;
 
 	    		case 'EMAIL':
-		    		?><label>
-	    				<input class="form-control" type="text" name="REGISTER[<?=$FIELD?>]" value="<?=$arResult["VALUES"][$FIELD]?>" placeholder="e-mail" autocomplete="email" />
-	    			</label><?
+		    		?><div class="form-group">
+                        <label>Введите ваш Email</label>
+	    				<input class="form-control" type="text" name="REGISTER[<?=$FIELD?>]" value="<?=$arResult["VALUES"][$FIELD]?>" placeholder="Электронная почта" autocomplete="email" />
+                    </div><?
 	    			break;
 
 	    		case 'PASSWORD':
-	    			?><label>
-	    				<input class="form-control" type="text" name="REGISTER[<?=$FIELD?>]" value="<?=$arResult["VALUES"][$FIELD]?>" placeholder="password" autocomplete="off" />
-	    			</label><?
+	    			?><div class="form-group">
+                        <label>Введите ваш новый пароль</label>
+	    				<input class="form-control" type="text" name="REGISTER[<?=$FIELD?>]" value="<?=$arResult["VALUES"][$FIELD]?>" placeholder="Пароль" autocomplete="off" />
+                    </div><?
 	    			break;
 
 	    		case 'CONFIRM_PASSWORD':
@@ -72,16 +76,19 @@ $rand = randString(6);
 	    			break;
 
 	    		default:
-		    		?><label>
+		    		?><div class="form-group">
 	    				<input class="form-control" type="text" name="REGISTER[<?=$FIELD?>]" value="<?=$arResult["VALUES"][$FIELD]?>" />
-	    			</label><?
+                    </div><?
 	    			break;
 	    	}
 	    }?>
         <div class="form-helpers">
-            <label>
-                <input type="checkbox" name="privacy_accept" value="Y"><span>Нажимая кнопку "Зарегистрироваться", я подтверждаю, что я ознакомился с <a href="#" data-fancybox="" data-type="ajax" data-src="/auth/?action=privacy" href="javascript:;">политикой обработки персональных данных</a> и даю согласие на обработку мои персональных данных</span>
-            </label>
+            <div class="form-check">
+                <label class="form-check-label">
+                    <input class="form-check-input" type="checkbox" name="privacy_accept" value="Y">
+                    <span class="form-check-label">Нажимая кнопку "Зарегистрироваться", я подтверждаю, что я ознакомился с <a href="#" data-fancybox="" data-type="ajax" data-src="/auth/?action=privacy" href="javascript:;">политикой обработки персональных данных</a><br> и даю согласие на обработку мои персональных данных</span>
+                </label>
+            </div>
         </div>
         <?if ($arResult["USE_CAPTCHA"] == "Y")
         {
@@ -92,8 +99,8 @@ $rand = randString(6);
         	<input type="text" name="captcha_word" maxlength="50" value="" />
         	<?
         }?>
-        <div class="submit-wrap">
-            <input class="btn btn-primary" type="submit" name="register_submit_button" value="зарегистрироваться" /><!-- form-control -->
+        <div class="submit-wrap mt-2 mb-2">
+            <button type="submit" class="btn btn-primary">Зарегистрироваться</button>
         </div>
 
         <?
@@ -112,7 +119,7 @@ $rand = randString(6);
         <?endif?>
     </form>
 
-    <a class="login" href="/user/?login=yes" data-fancybox="" data-type="ajax" data-src="/auth/?action=getForm" rel="nofollow">Уже зарегистрированы? Войти</a>
+    <a class="login" href="/auth/?login=yes" data-fancybox="" data-type="ajax" data-src="/auth/?action=getForm" rel="nofollow">Уже зарегистрированы? Войти</a>
     <?endif?>
 </div>
 
