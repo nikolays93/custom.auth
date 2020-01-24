@@ -19,9 +19,8 @@ if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)
 	die();
 
 $rand = randString(6);
-$columnClass = (!empty($arParams['IS_AJAX']) && 'Y' == $arParams['IS_AJAX']) ? 'col-sm-10 offset-sm-1' : 'col-sm-4 offset-sm-4';
 ?>
-<div class="register-form<?= $columnClass ?>">
+<div class="register-form">
 	<?if($USER->IsAuthorized()):?>
 	<p><?echo GetMessage("MAIN_REGISTER_AUTH")?></p>
 	<?else:?>
