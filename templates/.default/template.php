@@ -1,4 +1,6 @@
-<?if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true) die();
+<? if ( ! defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true) {
+    die();
+}
 
 /** @var array $arParams */
 /** @var array $arResult */
@@ -12,11 +14,11 @@
 /** @var string $componentPath */
 /** @var customOrderComponent $component */
 
-if( $USER->isAuthorized() )  {
+if ($USER->isAuthorized()) {
     echo '<p>';
     echo 'Вы зарегистрированы и успешно авторизовались.';
 
-    if( !empty($arResult['REDIRECT_URL']) ) {
+    if ( ! empty($arResult['REDIRECT_URL'])) {
         echo ' Через несколько секунд вы буете перенаправленны на стрианцу профиля';
         // echo '<script>setTimeout(function() { window.location.href = "'.$arResult['REDIRECT_URL'].'"; }, 4000);</script>';
     }
@@ -24,13 +26,11 @@ if( $USER->isAuthorized() )  {
     ?>
     <p>
         <a href="/">Вернуться на главную страницу</a>
-        | <a href="<?=PATH_TO_PROFILE;?>">Просмотреть свой профиль</a>
-        | <a href="<?=PATH_TO_AUTH;?>?logout=yes">Выйти</a>
+        | <a href="<?= PATH_TO_PROFILE; ?>">Просмотреть свой профиль</a>
+        | <a href="<?= PATH_TO_AUTH; ?>?logout=yes">Выйти</a>
     </p>
     <?
-}
-
-else {
+} else {
     $APPLICATION->IncludeComponent(
         "bitrix:system.auth.form",
         "", // $arParams['IS_AJAX'] ? "ajax" : ".default",
@@ -39,7 +39,7 @@ else {
             "PROFILE_URL" => "/user/",
             "REGISTER_URL" => '/auth/',
             "SHOW_ERRORS" => "Y",
-            "IS_AJAX" => !empty( $arParams['IS_AJAX'] ) ? $arParams['IS_AJAX'] : 'N',
+            "IS_AJAX" => ! empty($arParams['IS_AJAX']) ? $arParams['IS_AJAX'] : 'N',
             "COMPONENT_TEMPLATE" => ".default",
         ),
         $component
