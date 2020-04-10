@@ -5,7 +5,7 @@
 <div class="bx-auth">
     <? ShowMessage($arParams["~AUTH_RESULT"]); ?>
 
-    <div class="register-form">
+    <div class="custom-form">
         <form method="post" action="<?= $arResult["AUTH_FORM"] ?>" name="bform">
             <? if (strlen($arResult["BACKURL"]) > 0): ?>
                 <input type="hidden" name="backurl" value="<?= $arResult["BACKURL"] ?>"/>
@@ -17,12 +17,15 @@
             <input type="hidden" name="USER_CONFIRM_PASSWORD" maxlength="50"
                    value="<?= $arResult["USER_CONFIRM_PASSWORD"] ?>" class="bx-auth-input" autocomplete="off"/>
 
+            <div class="custom-form__errors">
             <? $APPLICATION->IncludeComponent(
-                "bitrix:system.auth.form",
+                "seo18:custom.auth",
                 "errors",
                 array("SHOW_ERRORS" => "Y"),
                 $component->__parent
             ); ?>
+            </div>
+
             <label>
                 <input class="form-control" type="text" name="USER_LOGIN" value="<?= $arResult["LAST_LOGIN"] ?>"
                        maxlength="50" placeholder="Login"/> <!-- placeholder="e-mail" autocomplete="email" -->

@@ -1,7 +1,4 @@
-<? if ( ! defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true) {
-    die();
-}
-
+<?php
 /** @var array $arParams */
 /** @var array $arResult */
 /** @global CMain $APPLICATION */
@@ -13,6 +10,10 @@
 /** @var string $templateFolder */
 /** @var string $componentPath */
 /** @var customOrderComponent $component */
+
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) {
+    die();
+}
 
 $APPLICATION->IncludeComponent("bitrix:main.register", ".default", Array(
     "COMPONENT_TEMPLATE" => ".default",
@@ -28,7 +29,6 @@ $APPLICATION->IncludeComponent("bitrix:main.register", ".default", Array(
     "SET_TITLE" => "N", // Устанавливать заголовок страницы
     "USER_PROPERTY" => "", // Показывать доп. свойства
     "USER_PROPERTY_NAME" => "", // Название блока пользовательских свойств
-    "IS_AJAX" => ! empty($arParams['IS_AJAX']) ? $arParams['IS_AJAX'] : 'N',
 ),
     $component
 );

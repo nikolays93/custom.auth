@@ -16,8 +16,9 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) {
 }
 
 $APPLICATION->IncludeComponent(
-    "bitrix:system.auth.forgotpasswd",
-    ".default",
-    Array(),
-    $component
+    "bitrix:system.auth.form",
+    "errors",
+    array(),
+    $component,
+    array("HIDE_ICONS" => "Y")
 );

@@ -1,7 +1,4 @@
-<? if ( ! defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true) {
-    die();
-}
-
+<?php
 /** @var array $arParams */
 /** @var array $arResult */
 /** @global CMain $APPLICATION */
@@ -13,6 +10,10 @@
 /** @var string $templateFolder */
 /** @var string $componentPath */
 /** @var customOrderComponent $component */
+
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) {
+    die();
+}
 
 $APPLICATION->IncludeComponent(
     "bitrix:system.auth.changepasswd",

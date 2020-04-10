@@ -1,18 +1,72 @@
-<?
-require_once($_SERVER["DOCUMENT_ROOT"] . "/bitrix/modules/main/include/prolog_before.php");
+<?php
+use Bitrix\Main\Engine\Contract\Controllerable;
+use Bitrix\Main\Engine\Controller;
 
-use \Bitrix\Main;
-use \Bitrix\Main\Localization\Loc;
-use \Bitrix\Main\Loader;
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) {
+    die();
+}
 
-$request = Main\Application::getInstance()->getContext()->getRequest();
-$request->addFilter(new Main\Web\PostDecodeFilter);
+class customAuthAjax extends Controller implements Controllerable
+{
+    /**
+     * @return array
+     */
+    public function configureActions(): array
+    {
+        return [
+            'getForm' => [
+                'prefilters' => [],
+            ],
+            'formResult' => [
+                'prefilters' => [],
+            ]
+        ];
+    }
 
-$action = $request->get("action");
+    public function getFormAction(): array
+    {
+        global $APPLICATION;
 
-$APPLICATION->IncludeComponent(
-    "nikolays93:custom.auth",
-    ".default",
-    array("IS_AJAX" => "Y"),
-    false
-);
+        $APPLICATION->IncludeComponent(
+            "seo18:custom.auth",
+            "",
+            array(),
+            false,
+            array("HIDE_ICONS" => "Y")
+        );
+        $arResult['response'] = trim(ob_get_clean());
+
+        return $arResult;
+    }
+
+    public function formResultAction(): array
+    {
+        global $APPLICATION;
+        $arResult = [];
+
+        ob_start();
+        $APPLICATION->IncludeComponent(
+            "seo18:custom.auth",
+            "errors",
+            array(),
+            $this,
+            array("HIDE_ICONS" => "Y")
+        );
+        $arResult['errors'] = trim(ob_get_clean());
+        if(!empty($arResult['errors'])) {
+            return $arResult;
+        }
+
+        ob_start();
+        $APPLICATION->IncludeComponent(
+            "seo18:custom.auth",
+            "",
+            array(),
+            false,
+            array("HIDE_ICONS" => "Y")
+        );
+        $arResult['response'] = trim(ob_get_clean());
+
+        return $arResult;
+    }
+}
