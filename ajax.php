@@ -41,20 +41,22 @@ class customAuthAjax extends Controller implements Controllerable
 
     public function formResultAction(): array
     {
-        global $APPLICATION;
+        global $APPLICATION, $USER;
         $arResult = [];
 
-        ob_start();
-        $APPLICATION->IncludeComponent(
-            "seo18:custom.auth",
-            "errors",
-            array(),
-            $this,
-            array("HIDE_ICONS" => "Y")
-        );
-        $arResult['errors'] = trim(ob_get_clean());
-        if(!empty($arResult['errors'])) {
-            return $arResult;
+        if(!$USER->isAuthorized()) {
+            ob_start();
+            $APPLICATION->IncludeComponent(
+                "seo18:custom.auth",
+                "errors",
+                array(),
+                $this,
+                array("HIDE_ICONS" => "Y")
+            );
+            $arResult['errors'] = trim(ob_get_clean());
+            if(!empty($arResult['errors'])) {
+                return $arResult;
+            }
         }
 
         ob_start();

@@ -17,7 +17,7 @@ jQuery(document).ready(function($) {
             data: $(this).serialize()
         }).done(function (result) {
             if("success" == result.status) {
-                if(result.data.errors.length) {
+                if(result.data.errors) {
                     $errors
                         .html(result.data.errors)
                         .fadeIn();
