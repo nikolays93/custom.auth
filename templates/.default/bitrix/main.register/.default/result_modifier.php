@@ -11,6 +11,9 @@
 
 global $APPLICATION, $USER;
 
+// Sort fields by params.
+$arResult["SHOW_FIELDS"] = array_merge($arParams['SHOW_FIELDS'], array_diff($arResult["SHOW_FIELDS"], $arParams['SHOW_FIELDS']));
+
 $arResult["AUTH_SERVICES"] = false;
 $arResult["CURRENT_SERVICE"] = false;
 

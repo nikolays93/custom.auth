@@ -36,44 +36,63 @@ if ( ! defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true) {
             ?>
         </div>
 
-        <? foreach (array_reverse($arResult["SHOW_FIELDS"]) as $FIELD) {
+        <?php
+        foreach ($arResult["SHOW_FIELDS"] as $FIELD) {
             switch ($FIELD) {
                 case 'LOGIN':
+                    ?>
+                    <div class="form-group form-name">
+                        <label>Введите ваш новый логин</label>
+                        <input type="text" placeholder="Логин" name="REGISTER[LOGIN]"
+                            value="<?= $arResult["VALUES"]["LOGIN"] ?>" class="form-control" autocomplete="login" />
+                    </div>
+                    <?php
+                    break;
+
                 case 'NAME':
+                    ?>
+                    <div class="form-group form-name">
+                        <label>Введите ваше имя</label>
+                        <input type="text" placeholder="Ф.И.О." name="REGISTER[NAME]"
+                            value="<?= $arResult["VALUES"]["NAME"] ?>" class="form-control" autocomplete="name" />
+                    </div>
+                    <?php
                     break;
 
                 case 'PERSONAL_PHONE':
                     ?>
-                    <div class="form-group">
-                    <label>Введите ваш номер телефона</label>
-                    <input class="form-control" type="text" name="REGISTER[<?= $FIELD ?>]"
-                           value="<?= $arResult["VALUES"][$FIELD] ?>" placeholder="Номер телефона"
-                           autocomplete="tel"/>
-                    </div><?
+                    <div class="form-group form-personal_phone">
+                        <label>Введите ваш номер телефона</label>
+                        <input type="tel" placeholder="Номер телефона" name="REGISTER[PERSONAL_PHONE]"
+                            value="<?= $arResult["VALUES"]["PERSONAL_PHONE"] ?>" class="form-control" autocomplete="tel" />
+                    </div>
+                    <?php
                     break;
 
                 case 'EMAIL':
                     ?>
-                    <div class="form-group">
-                    <label>Введите ваш Email</label>
-                    <input class="form-control" type="text" name="REGISTER[<?= $FIELD ?>]"
-                           value="<?= $arResult["VALUES"][$FIELD] ?>" placeholder="Электронная почта"
-                           autocomplete="email"/>
-                    </div><?
+                    <div class="form-group form-email">
+                        <label>Введите ваш Email</label>
+                        <input type="text" placeholder="Электронная почта" name="REGISTER[EMAIL]"
+                            value="<?= $arResult["VALUES"]["EMAIL"] ?>" class="form-control" autocomplete="email" required="true" />
+                    </div>
+                    <?php
                     break;
 
                 case 'PASSWORD':
                     ?>
-                    <div class="form-group">
-                    <label>Введите ваш новый пароль</label>
-                    <input class="form-control" type="text" name="REGISTER[<?= $FIELD ?>]"
-                           value="<?= $arResult["VALUES"][$FIELD] ?>" placeholder="Пароль" autocomplete="off"/>
-                    </div><?
+                    <div class="form-group form-email">
+                        <label>Введите ваш новый пароль</label>
+                        <input type="password" placeholder="Пароль" name="REGISTER[PASSWORD]"
+                            value="<?= $arResult["VALUES"]["PASSWORD"] ?>" class="form-control" autocomplete="off" />
+                    </div>
+                    <?php
                     break;
 
                 case 'CONFIRM_PASSWORD':
-                    ?><input class="form-control" type="hidden" name="REGISTER[<?= $FIELD ?>]"
-                             value="<?= $arResult["VALUES"][$FIELD] ?>" autocomplete="off" />
+                    ?>
+                    <input type="hidden" name="REGISTER[CONFIRM_PASSWORD]"
+                        value="<?= $arResult["VALUES"][$FIELD] ?>" class="form-control" autocomplete="off" />
                     <script>
                         jQuery(document).ready(function($) {
                             var $CONFIRM_PASSWORD = $('[name="REGISTER[CONFIRM_PASSWORD]"]');
@@ -82,18 +101,21 @@ if ( ! defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true) {
                             });
                         });
                     </script>
-                             <?
+                    <?php
                     break;
 
                 default:
                     ?>
                     <div class="form-group">
-                    <input class="form-control" type="text" name="REGISTER[<?= $FIELD ?>]"
-                           value="<?= $arResult["VALUES"][$FIELD] ?>"/>
-                    </div><?
+                        <input type="text" class="form-control" name="REGISTER[<?= $FIELD ?>]"
+                            value="<?= $arResult["VALUES"][$FIELD] ?>" />
+                    </div>
+                    <?php
                     break;
             }
-        } ?>
+        }
+
+        ?>
         <div class="form-group">
         <? if ($arResult["USE_CAPTCHA"] == "Y") {
             ?>

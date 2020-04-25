@@ -18,14 +18,17 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) {
 $APPLICATION->IncludeComponent("bitrix:main.register", ".default", Array(
     "COMPONENT_TEMPLATE" => ".default",
     "SHOW_FIELDS" => array( // Поля, которые показывать в форме
-        0 => "EMAIL",
-        1 => "NAME",
-        2 => "PERSONAL_PHONE",
+        0 => "NAME",
+        1 => "LOGIN",
+        2 => "EMAIL",
+        3 => "PERSONAL_PHONE",
+        4 => "PASSWORD",
+        5 => "CONFIRM_PASSWORD",
     ),
     "REQUIRED_FIELDS" => "", // Поля, обязательные для заполнения
-    "AUTH" => "N",  // Автоматически авторизовать пользователей
+    "AUTH" => "Y",  // Автоматически авторизовать пользователей
     "USE_BACKURL" => "Y", // Отправлять пользователя по обратной ссылке, если она есть
-    "SUCCESS_PAGE" => "", // Страница окончания регистрации
+    "SUCCESS_PAGE" => "?register=success", // Страница окончания регистрации
     "SET_TITLE" => "N", // Устанавливать заголовок страницы
     "USER_PROPERTY" => "", // Показывать доп. свойства
     "USER_PROPERTY_NAME" => "", // Название блока пользовательских свойств
